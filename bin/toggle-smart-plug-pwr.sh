@@ -12,17 +12,21 @@ run() {
 }
 
 load_config() {
+  # shellcheck disable=SC2086
   SCRIPT_BASE="$(dirname $0)"
 
   if [ -f "${SCRIPT_BASE}/.env.development" ] || [ -L "${SCRIPT_BASE}/.env.development" ]; then
     echo "Loading configuration from ${SCRIPT_BASE}/.env.development..."
-    source "${SCRIPT_BASE}/.env.development"
+    # shellcheck disable=SC1091
+    . "${SCRIPT_BASE}/.env.development"
   elif [ -f "${SCRIPT_BASE}/.env" ] || [ -L "${SCRIPT_BASE}/.env" ]; then
     echo "Loading configuration from ${SCRIPT_BASE}/.env..."
-    source "${SCRIPT_BASE}/.env"
+    # shellcheck disable=SC1091
+    . "${SCRIPT_BASE}/.env"
   else
     echo "Loading configuration from ${SCRIPT_BASE}/.env.dist..."
-    source "${SCRIPT_BASE}/.env.dist"
+    # shellcheck disable=SC1091
+    . "${SCRIPT_BASE}/.env.dist"
   fi
 }
 
@@ -69,6 +73,7 @@ if [ -z "$PWR_SWITCH_POS" ]; then
 fi
 
 # Pre-run check
+# shellcheck disable=SC2086
 if ! run "${PING_CMD}" ${PING_ARGS} "${HOST}" > /dev/null; then
   echo "CRITICAL: The host at ${HOST} appears to be offline. Try again later!"
   echo
@@ -79,7 +84,8 @@ fi
 if [ "$PWR_SWITCH_POS" = "query" ]; then
   echo
   # shellcheck disable=SC2086
-  "${CURL_CMD}" "${CURL_ARGS}" "http://$HOST/cm?cmnd=Power&user=${USERNAME}&password=${PASSWORD}"
+  "${CURL_CMD}" "${CURL_ARGS}" \
+    "http://$HOST/cm?cmnd=Power&user=${USERNAME}&password=${PASSWORD}"
   echo
   exit 0
 fi

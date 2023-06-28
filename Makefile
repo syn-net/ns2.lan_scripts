@@ -7,4 +7,4 @@ sync-to-ns2:
 	scp -O bin/toggle-smart-plug-pwr.sh root@ns2:/root/bin/toggle-smart-plug-pwr.sh
 	scp -O bin/.env root@ns2:/root/bin/.env
 lint:
-	shellcheck --shell=dash bin/toggle-smart-plug-pwr.sh
+	shellcheck --external-sources --shell=dash bin/toggle-smart-plug-pwr.sh
