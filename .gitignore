@@ -2,3 +2,7 @@
 
 build/*
 !build/.placeholder
+
+.env
+.env.development
+
