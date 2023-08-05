@@ -16,4 +16,3 @@ vim "bin/.env"
 ```shell
 bin/toggle-smart-plug-pwr.sh <HOST> <query|toggle|on|off>
 ```
-
