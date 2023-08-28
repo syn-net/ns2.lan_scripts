@@ -73,6 +73,7 @@ if [ "$OUR_IP" = "" ]; then
   exit 255
 fi
 
+# shellcheck disable=SC3037
 echo -e "Updating ${YDNS_HOST} with ${OUR_IP} at ${YDNS_UPDATE_URL}...\n"
 
 # shellcheck disable=SC2086
