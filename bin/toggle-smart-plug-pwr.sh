@@ -1,9 +1,9 @@
 #!/usr/bin/env ash
 
-#NOM_DEBUG=1
+#DEBUG=1
 
 run() {
-  if [ -n "$NOM_DEBUG" ]; then
+  if [ -n "$DEBUG" ]; then
     # shellcheck disable=SC2145
     echo "DEBUG: $@"
   else
@@ -85,7 +85,7 @@ if [ "$PWR_SWITCH_POS" = "query" ]; then
   echo
   # shellcheck disable=SC2086
   "${CURL_CMD}" "${CURL_ARGS}" \
-    "http://$HOST/cm?cmnd=Power&user=${USERNAME}&password=${PASSWORD}"
+    "http://$HOST/cm?cmnd=Power&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}"
   echo
   exit 0
 fi
@@ -94,7 +94,7 @@ fi
 if [ "$PWR_SWITCH_POS" = "toggle" ]; then
   # shellcheck disable=SC2086
   # shellcheck disable=SC2091
-  if ! $(run "$CURL_CMD" "$CURL_ARGS" "http://$HOST/cm?cmnd=Power&user=${USERNAME}&password=${PASSWORD}" | grep -i -e "ON"); then
+  if ! $(run "$CURL_CMD" "$CURL_ARGS" "http://$HOST/cm?cmnd=Power&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}" | grep -i -e "ON"); then
     PWR_SWITCH_POS="OFF"
   else
     PWR_SWITCH_POS="ON"
@@ -103,6 +103,6 @@ fi
 
 # shellcheck disable=SC2086
 run "$PING_CMD" $PING_ARGS "$HOST" && "$CURL_CMD" "$CURL_ARGS" \
-  "http://${HOST}/cm?cmnd=Power%20${PWR_SWITCH_POS}&user=${USERNAME}&password=${PASSWORD}"
+  "http://${HOST}/cm?cmnd=Power%20${PWR_SWITCH_POS}&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}"
 
 exit 0
