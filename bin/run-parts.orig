@@ -1,0 +1,24 @@
+#!/usr/bin/env ash
+
+# keep going when something fails
+set +e
+# pipefail is required for --report support
+set -o pipefail
+
+RUN_SCRIPT_TYPE="*.sh"
+RUN_DIR="$1"
+echo $RUN_DIR
+
+if test -d "${RUN_DIR}/"; then
+  for scr in "${RUN_DIR}/*.sh"; do
+    if [ "$DRY_RUN" = "1" ]; then
+      echo "test -r \"$scr\" && . \"$scr\""
+    else
+      echo "$scr"
+      test -r "$scr" && . "$scr"
+    fi
+  done
+
+  unset profile
+fi
+
