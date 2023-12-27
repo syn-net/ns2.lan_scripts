@@ -1,7 +1,11 @@
 #!/bin/sh
+# /root/bin/gps_dash:jeff
 #
-#
+# GPSD console
 #
 
-cgps
+TERM=xterm-256color
+
+# Use imperial units and DD.dddd lat/long display
+cgps --silent --units i --llfmt d
 
