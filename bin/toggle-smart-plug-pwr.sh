@@ -1,9 +1,7 @@
 #!/usr/bin/env ash
 
-#DEBUG=1
-
 run() {
-  if [ -n "$DEBUG" ]; then
+  if [ -n "$DRY_RUN" ]; then
     # shellcheck disable=SC2145
     echo "DEBUG: $@"
   else
@@ -30,14 +28,15 @@ load_config() {
   fi
 }
 
+load_config
+
 CURL_CMD=$(which curl)
 PING_CMD=$(which ping)
 PING_ARGS="-4 -w1"
 CURL_ARGS="-4"
+[ -n "$DEBUG" ] && CURL_ARGS="$CURL_ARGS -v "
 HOST="$1"
 PWR_SWITCH_POS="$2"
-
-load_config
 
 # Pre-run sanity check
 if [ ! -x "$CURL_CMD" ]; then
@@ -80,12 +79,14 @@ if ! run "${PING_CMD}" ${PING_ARGS} "${HOST}" > /dev/null; then
   exit 1
 fi
 
+[ -n "$DEBUG" ] && echo -e "CURL_ARGS: ${CURL_ARGS}\n"
+
 # First branch
-if [ "$PWR_SWITCH_POS" = "query" ]; then
+# FIXME(jeff): Figure out the correct URL syntax for querying status of device!
+if [ "$PWR_SWITCH_POS" = "query" ] || [ "$PWR_SWITCH_POS" = "status" ]; then
   echo
   # shellcheck disable=SC2086
-  "${CURL_CMD}" "${CURL_ARGS}" \
-    "http://$HOST/cm?cmnd=Power&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}"
+  run "${CURL_CMD}" ${CURL_ARGS} --digest -u ${USERNAME}:${PASSWORD} "http://$HOST/switch/relay/status"
   echo
   exit 0
 fi
@@ -94,15 +95,15 @@ fi
 if [ "$PWR_SWITCH_POS" = "toggle" ]; then
   # shellcheck disable=SC2086
   # shellcheck disable=SC2091
-  if ! $(run "$CURL_CMD" "$CURL_ARGS" "http://$HOST/cm?cmnd=Power&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}" | grep -i -e "ON"); then
-    PWR_SWITCH_POS="OFF"
+  if ! $(run "$CURL_CMD" ${CURL_ARGS} --digest -u ${USERNAME}:${PASSWORD} "http://$HOST/switch/relay/" | grep -i -e "ON"); then
+    PWR_SWITCH_POS="turn_off"
   else
-    PWR_SWITCH_POS="ON"
+    PWR_SWITCH_POS="turn_on"
   fi
 fi
 
 # shellcheck disable=SC2086
-run "$PING_CMD" $PING_ARGS "$HOST" && "$CURL_CMD" "$CURL_ARGS" \
-  "http://${HOST}/cm?cmnd=Power%20${PWR_SWITCH_POS}&user=${TASMOTA_USERNAME}&password=${TASMOTA_PASSWORD}"
+run "$PING_CMD" $PING_ARGS "$HOST" && "$CURL_CMD" ${CURL_ARGS} --digest -u ${USERNAME}:${PASSWORD} \
+  "http://${HOST}/switch/relay/${PWR_SWITCH_POS}"
 
 exit 0
